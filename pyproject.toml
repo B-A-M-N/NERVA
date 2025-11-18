@@ -1,0 +1,126 @@
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "nerva"
+version = "0.1.0"
+description = "Neural Embodied Reasoning & Vision Assistant - A local cognitive exoskeleton for AI infrastructure work"
+readme = "README.md"
+requires-python = ">=3.10"
+license = {text = "MIT"}
+authors = [
+    {name = "Your Name", email = "your.email@example.com"}
+]
+keywords = ["llm", "ai", "assistant", "vision", "voice", "developer-tools"]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+]
+
+dependencies = [
+    # Core async HTTP
+    "aiohttp>=3.9.0",
+
+    # TUI framework
+    "textual>=0.70.0",
+
+    # SOLLOL - LLM routing and unified dashboard
+    "sollol>=0.9.0",  # Install from local: pip install -e ~/SOLLOL
+    "requests>=2.31.0",  # Required for SOLLOL dashboard client
+
+    # Whisper for ASR (choose one based on preference)
+    "openai-whisper>=20231117",  # Official OpenAI implementation
+    # "faster-whisper>=0.10.0",  # Faster alternative
+
+    # Kokoro TTS - install from your source
+    # Option 1: From local path
+    # "kokoro @ file:///path/to/kokoro-82m",
+    # Option 2: From git
+    # "kokoro @ git+https://github.com/remsky/Kokoro-82M.git",
+
+    # Optional vision/screen capture
+    "mss>=9.0.0",  # Fast screenshot library
+    # "pyautogui>=0.9.54",  # Alternative for screenshots + automation
+    # "pillow>=10.0.0",  # For clipboard image access
+
+    # Optional audio processing
+    # "sounddevice>=0.4.6",  # Audio I/O
+    # "soundfile>=0.12.1",  # Audio file I/O
+    # "pyaudio>=0.2.13",  # Alternative audio I/O
+
+    # Embeddings (choose one)
+    # "sentence-transformers>=2.2.0",  # For mxbai-embed-large, etc.
+
+    # Optional vector DB
+    # "chromadb>=0.4.0",  # Vector database
+    # "faiss-cpu>=1.7.0",  # Facebook's vector search
+
+    # Optional GitHub integration
+    # "pygithub>=2.0.0",  # GitHub API wrapper
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=7.4.0",
+    "pytest-asyncio>=0.21.0",
+    "black>=23.0.0",
+    "ruff>=0.1.0",
+    "mypy>=1.5.0",
+]
+
+vision = [
+    "mss>=9.0.0",
+    "pillow>=10.0.0",
+]
+
+voice = [
+    "sounddevice>=0.4.6",
+    "soundfile>=0.12.1",
+    "faster-whisper>=0.10.0",
+    "pyttsx3>=2.90",  # Cross-platform TTS (easier than Kokoro)
+]
+
+embeddings = [
+    "sentence-transformers>=2.2.0",
+    "chromadb>=0.4.0",
+]
+
+all = [
+    "nerva[dev,vision,voice,embeddings]",
+]
+
+[project.scripts]
+nerva = "nerva.main:main"
+nerva-console = "nerva.console:run"
+
+[project.urls]
+Homepage = "https://github.com/yourusername/nerva"
+Repository = "https://github.com/yourusername/nerva"
+Issues = "https://github.com/yourusername/nerva/issues"
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["nerva*"]
+
+[tool.black]
+line-length = 100
+target-version = ['py310', 'py311', 'py312']
+
+[tool.ruff]
+line-length = 100
+target-version = "py310"
+select = ["E", "F", "I", "N", "W", "UP"]
+ignore = ["E501"]  # Line too long (handled by black)
+
+[tool.mypy]
+python_version = "3.10"
+warn_return_any = true
+warn_unused_configs = true
+disallow_untyped_defs = false
+ignore_missing_imports = true

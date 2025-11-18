@@ -1,0 +1,1010 @@
+[
+  {
+    "file": "chat.py",
+    "function": "__init__",
+    "async": false,
+    "lineno": 48,
+    "end_lineno": 74,
+    "status": "implemented"
+  },
+  {
+    "file": "chat.py",
+    "function": "_switch_to_mock",
+    "async": false,
+    "lineno": 76,
+    "end_lineno": 84,
+    "status": "implemented"
+  },
+  {
+    "file": "chat.py",
+    "function": "_show_voice_menu",
+    "async": false,
+    "lineno": 86,
+    "end_lineno": 122,
+    "status": "implemented"
+  },
+  {
+    "file": "chat.py",
+    "function": "ask",
+    "async": true,
+    "lineno": 124,
+    "end_lineno": 140,
+    "status": "implemented"
+  },
+  {
+    "file": "chat.py",
+    "function": "chat",
+    "async": true,
+    "lineno": 142,
+    "end_lineno": 205,
+    "status": "implemented"
+  },
+  {
+    "file": "chat.py",
+    "function": "main",
+    "async": true,
+    "lineno": 208,
+    "end_lineno": 232,
+    "status": "implemented"
+  },
+  {
+    "file": "nerva/bus.py",
+    "function": "__init__",
+    "async": false,
+    "lineno": 17,
+    "end_lineno": 20,
+    "status": "implemented"
+  },
+  {
+    "file": "nerva/bus.py",
+    "function": "subscribe",
+    "async": false,
+    "lineno": 22,
+    "end_lineno": 25,
+    "status": "implemented"
+  },
+  {
+    "file": "nerva/bus.py",
+    "function": "unsubscribe",
+    "async": false,
+    "lineno": 27,
+    "end_lineno": 34,
+    "status": "implemented"
+  },
+  {
+    "file": "nerva/bus.py",
+    "function": "publish",
+    "async": false,
+    "lineno": 36,
+    "end_lineno": 51,
+    "status": "implemented"
+  },
+  {
+    "file": "nerva/bus.py",
+    "function": "get_history",
+    "async": false,
+    "lineno": 53,
+    "end_lineno": 55,
+    "status": "implemented"
+  },
+  {
+    "file": "nerva/config.py",
+    "function": "__post_init__",
+    "async": false,
+    "lineno": 29,
+    "end_lineno": 32,
+    "status": "implemented"
+  },
+  {
+    "file": "nerva/console.py",
+    "function": "watch_status",
+    "async": false,
+    "lineno": 54,
+    "end_lineno": 56,
+    "status": "implemented"
+  },
+  {
+    "file": "nerva/console.py",
+    "function": "__init__",
+    "async": false,
+    "lineno": 116,
+    "end_lineno": 156,
+    "status": "implemented"
+  },
+  {
+    "file": "nerva/console.py",
+    "function": "compose",
+    "async": false,
+    "lineno": 162,
+    "end_lineno": 265,
+    "status": "partial"
+  },
+  {
+    "file": "nerva/console.py",
+    "function": "action_tab_screen",
+    "async": false,
+    "lineno": 271,
+    "end_lineno": 273,
+    "status": "implemented"
+  },
+  {
+    "file": "nerva/console.py",
+    "function": "action_tab_voice",
+    "async": false,
+    "lineno": 275,
+    "end_lineno": 277,
+    "status": "implemented"
+  },
+  {
+    "file": "nerva/console.py",
+    "function": "action_tab_daily_ops",
+    "async": false,
+    "lineno": 279,
+    "end_lineno": 281,
+    "status": "implemented"
+  },
+  {
+    "file": "nerva/console.py",
+    "function": "action_tab_repo",
+    "async": false,
+    "lineno": 283,
+    "end_lineno": 285,
+    "status": "implemented"
+  },
+  {
+    "file": "nerva/console.py",
+    "function": "action_tab_memory",
+    "async": false,
+    "lineno": 287,
+    "end_lineno": 289,
+    "status": "implemented"
+  },
+  {
+    "file": "nerva/console.py",
+    "function": "action_tab_nodes",
+    "async": false,
+    "lineno": 291,
+    "end_lineno": 293,
+    "status": "implemented"
+  },
+  {
+    "file": "nerva/console.py",
+    "function": "switch_tab",
+    "async": false,
+    "lineno": 295,
+    "end_lineno": 298,
+    "status": "implemented"
+  },
+  {
+    "file": "nerva/console.py",
+    "function": "log_msg",
+    "async": false,
+    "lineno": 304,
+    "end_lineno": 307,
+    "status": "implemented"
+  },
+  {
+    "file": "nerva/console.py",
+    "function": "set_status",
+    "async": false,
+    "lineno": 309,
+    "end_lineno": 312,
+    "status": "implemented"
+  },
+  {
+    "file": "nerva/console.py",
+    "function": "on_button_pressed",
+    "async": true,
+    "lineno": 318,
+    "end_lineno": 332,
+    "status": "implemented"
+  },
+  {
+    "file": "nerva/console.py",
+    "function": "on_input_submitted",
+    "async": true,
+    "lineno": 334,
+    "end_lineno": 340,
+    "status": "implemented"
+  },
+  {
+    "file": "nerva/console.py",
+    "function": "run_screen_dag",
+    "async": true,
+    "lineno": 346,
+    "end_lineno": 361,
+    "status": "implemented"
+  },
+  {
+    "file": "nerva/console.py",
+    "function": "run_voice_dag",
+    "async": true,
+    "lineno": 363,
+    "end_lineno": 405,
+    "status": "implemented"
+  },
+  {
+    "file": "nerva/console.py",
+    "function": "run_daily_ops_dag",
+    "async": true,
+    "lineno": 407,
+    "end_lineno": 454,
+    "status": "implemented"
+  },
+  {
+    "file": "nerva/console.py",
+    "function": "run_repo_dag",
+    "async": true,
+    "lineno": 456,
+    "end_lineno": 502,
+    "status": "implemented"
+  },
+  {
+    "file": "nerva/console.py",
+    "function": "refresh_memory_view",
+    "async": true,
+    "lineno": 508,
+    "end_lineno": 543,
+    "status": "implemented"
+  },
+  {
+    "file": "nerva/console.py",
+    "function": "refresh_nodes_view",
+    "async": true,
+    "lineno": 545,
+    "end_lineno": 560,
+    "status": "partial"
+  },
+  {
+    "file": "nerva/console.py",
+    "function": "run",
+    "async": false,
+    "lineno": 563,
+    "end_lineno": 571,
+    "status": "implemented"
+  },
+  {
+    "file": "nerva/dag.py",
+    "function": "__init__",
+    "async": false,
+    "lineno": 31,
+    "end_lineno": 33,
+    "status": "implemented"
+  },
+  {
+    "file": "nerva/dag.py",
+    "function": "add_node",
+    "async": false,
+    "lineno": 35,
+    "end_lineno": 40,
+    "status": "implemented"
+  },
+  {
+    "file": "nerva/dag.py",
+    "function": "_topological_order",
+    "async": false,
+    "lineno": 42,
+    "end_lineno": 69,
+    "status": "implemented"
+  },
+  {
+    "file": "nerva/dag.py",
+    "function": "visit",
+    "async": false,
+    "lineno": 51,
+    "end_lineno": 64,
+    "status": "implemented"
+  },
+  {
+    "file": "nerva/dag.py",
+    "function": "run",
+    "async": true,
+    "lineno": 71,
+    "end_lineno": 88,
+    "status": "implemented"
+  },
+  {
+    "file": "nerva/hydra_adapter/context_builder.py",
+    "function": "build_context_for_repo",
+    "async": false,
+    "lineno": 11,
+    "end_lineno": 49,
+    "status": "partial"
+  },
+  {
+    "file": "nerva/hydra_adapter/context_builder.py",
+    "function": "compress_file_content",
+    "async": false,
+    "lineno": 52,
+    "end_lineno": 77,
+    "status": "partial"
+  },
+  {
+    "file": "nerva/llm/client_base.py",
+    "function": "chat",
+    "async": true,
+    "lineno": 14,
+    "end_lineno": 25,
+    "status": "implemented"
+  },
+  {
+    "file": "nerva/llm/client_base.py",
+    "function": "vision_chat",
+    "async": true,
+    "lineno": 28,
+    "end_lineno": 45,
+    "status": "implemented"
+  },
+  {
+    "file": "nerva/llm/mock_client.py",
+    "function": "__init__",
+    "async": false,
+    "lineno": 21,
+    "end_lineno": 22,
+    "status": "implemented"
+  },
+  {
+    "file": "nerva/llm/mock_client.py",
+    "function": "chat",
+    "async": true,
+    "lineno": 24,
+    "end_lineno": 44,
+    "status": "implemented"
+  },
+  {
+    "file": "nerva/llm/mock_client.py",
+    "function": "vision_chat",
+    "async": true,
+    "lineno": 46,
+    "end_lineno": 65,
+    "status": "implemented"
+  },
+  {
+    "file": "nerva/llm/qwen_client.py",
+    "function": "__init__",
+    "async": false,
+    "lineno": 23,
+    "end_lineno": 38,
+    "status": "implemented"
+  },
+  {
+    "file": "nerva/llm/qwen_client.py",
+    "function": "chat",
+    "async": true,
+    "lineno": 40,
+    "end_lineno": 69,
+    "status": "implemented"
+  },
+  {
+    "file": "nerva/llm/qwen_client.py",
+    "function": "vision_chat",
+    "async": true,
+    "lineno": 71,
+    "end_lineno": 121,
+    "status": "implemented"
+  },
+  {
+    "file": "nerva/main.py",
+    "function": "__init__",
+    "async": false,
+    "lineno": 39,
+    "end_lineno": 48,
+    "status": "implemented"
+  },
+  {
+    "file": "nerva/main.py",
+    "function": "run_screen_mode",
+    "async": true,
+    "lineno": 50,
+    "end_lineno": 68,
+    "status": "implemented"
+  },
+  {
+    "file": "nerva/main.py",
+    "function": "run_voice_mode",
+    "async": true,
+    "lineno": 70,
+    "end_lineno": 82,
+    "status": "implemented"
+  },
+  {
+    "file": "nerva/main.py",
+    "function": "run_daily_ops",
+    "async": true,
+    "lineno": 84,
+    "end_lineno": 93,
+    "status": "implemented"
+  },
+  {
+    "file": "nerva/main.py",
+    "function": "run_repo_mode",
+    "async": true,
+    "lineno": 95,
+    "end_lineno": 111,
+    "status": "implemented"
+  },
+  {
+    "file": "nerva/main.py",
+    "function": "cmd_daily_ops",
+    "async": true,
+    "lineno": 119,
+    "end_lineno": 136,
+    "status": "implemented"
+  },
+  {
+    "file": "nerva/main.py",
+    "function": "cmd_voice",
+    "async": true,
+    "lineno": 139,
+    "end_lineno": 148,
+    "status": "implemented"
+  },
+  {
+    "file": "nerva/main.py",
+    "function": "cmd_repo",
+    "async": true,
+    "lineno": 151,
+    "end_lineno": 161,
+    "status": "implemented"
+  },
+  {
+    "file": "nerva/main.py",
+    "function": "cmd_screen",
+    "async": true,
+    "lineno": 164,
+    "end_lineno": 175,
+    "status": "implemented"
+  },
+  {
+    "file": "nerva/main.py",
+    "function": "interactive_mode",
+    "async": true,
+    "lineno": 178,
+    "end_lineno": 219,
+    "status": "implemented"
+  },
+  {
+    "file": "nerva/main.py",
+    "function": "main",
+    "async": true,
+    "lineno": 222,
+    "end_lineno": 256,
+    "status": "implemented"
+  },
+  {
+    "file": "nerva/memory/embedder.py",
+    "function": "__init__",
+    "async": false,
+    "lineno": 17,
+    "end_lineno": 19,
+    "status": "implemented"
+  },
+  {
+    "file": "nerva/memory/embedder.py",
+    "function": "embed",
+    "async": false,
+    "lineno": 24,
+    "end_lineno": 37,
+    "status": "partial"
+  },
+  {
+    "file": "nerva/memory/embedder.py",
+    "function": "embed_batch",
+    "async": false,
+    "lineno": 39,
+    "end_lineno": 52,
+    "status": "partial"
+  },
+  {
+    "file": "nerva/memory/schemas.py",
+    "function": "new",
+    "async": false,
+    "lineno": 31,
+    "end_lineno": 46,
+    "status": "implemented"
+  },
+  {
+    "file": "nerva/memory/schemas.py",
+    "function": "to_dict",
+    "async": false,
+    "lineno": 48,
+    "end_lineno": 58,
+    "status": "implemented"
+  },
+  {
+    "file": "nerva/memory/store.py",
+    "function": "__init__",
+    "async": false,
+    "lineno": 20,
+    "end_lineno": 23,
+    "status": "implemented"
+  },
+  {
+    "file": "nerva/memory/store.py",
+    "function": "add",
+    "async": false,
+    "lineno": 25,
+    "end_lineno": 29,
+    "status": "implemented"
+  },
+  {
+    "file": "nerva/memory/store.py",
+    "function": "bulk_add",
+    "async": false,
+    "lineno": 31,
+    "end_lineno": 36,
+    "status": "implemented"
+  },
+  {
+    "file": "nerva/memory/store.py",
+    "function": "all",
+    "async": false,
+    "lineno": 38,
+    "end_lineno": 41,
+    "status": "implemented"
+  },
+  {
+    "file": "nerva/memory/store.py",
+    "function": "filter_by_type",
+    "async": false,
+    "lineno": 43,
+    "end_lineno": 47,
+    "status": "implemented"
+  },
+  {
+    "file": "nerva/memory/store.py",
+    "function": "search_text_contains",
+    "async": false,
+    "lineno": 49,
+    "end_lineno": 54,
+    "status": "implemented"
+  },
+  {
+    "file": "nerva/memory/store.py",
+    "function": "search_by_tags",
+    "async": false,
+    "lineno": 56,
+    "end_lineno": 61,
+    "status": "implemented"
+  },
+  {
+    "file": "nerva/memory/store.py",
+    "function": "search_by_vector",
+    "async": false,
+    "lineno": 63,
+    "end_lineno": 73,
+    "status": "stub"
+  },
+  {
+    "file": "nerva/memory/store.py",
+    "function": "clear",
+    "async": false,
+    "lineno": 75,
+    "end_lineno": 80,
+    "status": "implemented"
+  },
+  {
+    "file": "nerva/ops/collectors.py",
+    "function": "collect_github_notifications",
+    "async": false,
+    "lineno": 11,
+    "end_lineno": 30,
+    "status": "partial"
+  },
+  {
+    "file": "nerva/ops/collectors.py",
+    "function": "collect_local_todos",
+    "async": false,
+    "lineno": 33,
+    "end_lineno": 62,
+    "status": "partial"
+  },
+  {
+    "file": "nerva/ops/collectors.py",
+    "function": "collect_system_events",
+    "async": false,
+    "lineno": 65,
+    "end_lineno": 94,
+    "status": "implemented"
+  },
+  {
+    "file": "nerva/ops/collectors.py",
+    "function": "collect_sollol_status",
+    "async": false,
+    "lineno": 97,
+    "end_lineno": 115,
+    "status": "partial"
+  },
+  {
+    "file": "nerva/repos/repo_index.py",
+    "function": "index_repo",
+    "async": false,
+    "lineno": 21,
+    "end_lineno": 85,
+    "status": "implemented"
+  },
+  {
+    "file": "nerva/repos/repo_index.py",
+    "function": "summarize_repo_structure",
+    "async": false,
+    "lineno": 88,
+    "end_lineno": 119,
+    "status": "implemented"
+  },
+  {
+    "file": "nerva/run_context.py",
+    "function": "to_dict",
+    "async": false,
+    "lineno": 48,
+    "end_lineno": 58,
+    "status": "implemented"
+  },
+  {
+    "file": "nerva/sollol_integration.py",
+    "function": "__init__",
+    "async": false,
+    "lineno": 39,
+    "end_lineno": 82,
+    "status": "implemented"
+  },
+  {
+    "file": "nerva/sollol_integration.py",
+    "function": "_launch_dashboard",
+    "async": false,
+    "lineno": 84,
+    "end_lineno": 126,
+    "status": "implemented"
+  },
+  {
+    "file": "nerva/sollol_integration.py",
+    "function": "_is_dashboard_running",
+    "async": false,
+    "lineno": 128,
+    "end_lineno": 143,
+    "status": "implemented"
+  },
+  {
+    "file": "nerva/sollol_integration.py",
+    "function": "_register",
+    "async": false,
+    "lineno": 145,
+    "end_lineno": 175,
+    "status": "implemented"
+  },
+  {
+    "file": "nerva/sollol_integration.py",
+    "function": "update_status",
+    "async": false,
+    "lineno": 177,
+    "end_lineno": 185,
+    "status": "implemented"
+  },
+  {
+    "file": "nerva/sollol_integration.py",
+    "function": "cleanup",
+    "async": false,
+    "lineno": 187,
+    "end_lineno": 205,
+    "status": "implemented"
+  },
+  {
+    "file": "nerva/sollol_integration.py",
+    "function": "get_dashboard_url",
+    "async": false,
+    "lineno": 207,
+    "end_lineno": 216,
+    "status": "implemented"
+  },
+  {
+    "file": "nerva/sollol_integration.py",
+    "function": "get_dashboard_integration",
+    "async": false,
+    "lineno": 223,
+    "end_lineno": 248,
+    "status": "implemented"
+  },
+  {
+    "file": "nerva/sollol_integration.py",
+    "function": "disable_dashboard_integration",
+    "async": false,
+    "lineno": 251,
+    "end_lineno": 258,
+    "status": "implemented"
+  },
+  {
+    "file": "nerva/types.py",
+    "function": "new",
+    "async": false,
+    "lineno": 33,
+    "end_lineno": 35,
+    "status": "implemented"
+  },
+  {
+    "file": "nerva/types.py",
+    "function": "to_dict",
+    "async": false,
+    "lineno": 55,
+    "end_lineno": 63,
+    "status": "implemented"
+  },
+  {
+    "file": "nerva/vision/screenshot.py",
+    "function": "capture_screen",
+    "async": false,
+    "lineno": 10,
+    "end_lineno": 26,
+    "status": "partial"
+  },
+  {
+    "file": "nerva/vision/screenshot.py",
+    "function": "read_clipboard_image",
+    "async": false,
+    "lineno": 29,
+    "end_lineno": 46,
+    "status": "partial"
+  },
+  {
+    "file": "nerva/voice/kokoro_tts.py",
+    "function": "__init__",
+    "async": false,
+    "lineno": 50,
+    "end_lineno": 99,
+    "status": "implemented"
+  },
+  {
+    "file": "nerva/voice/kokoro_tts.py",
+    "function": "speak",
+    "async": false,
+    "lineno": 101,
+    "end_lineno": 116,
+    "status": "implemented"
+  },
+  {
+    "file": "nerva/voice/kokoro_tts.py",
+    "function": "_speak_kokoro",
+    "async": false,
+    "lineno": 118,
+    "end_lineno": 138,
+    "status": "implemented"
+  },
+  {
+    "file": "nerva/voice/kokoro_tts.py",
+    "function": "_speak_pyttsx3",
+    "async": false,
+    "lineno": 140,
+    "end_lineno": 150,
+    "status": "implemented"
+  },
+  {
+    "file": "nerva/voice/kokoro_tts.py",
+    "function": "_speak_system",
+    "async": false,
+    "lineno": 152,
+    "end_lineno": 162,
+    "status": "implemented"
+  },
+  {
+    "file": "nerva/voice/kokoro_tts.py",
+    "function": "_ensure_kokoro_models",
+    "async": false,
+    "lineno": 164,
+    "end_lineno": 214,
+    "status": "implemented"
+  },
+  {
+    "file": "nerva/voice/kokoro_tts.py",
+    "function": "synthesize_to_file",
+    "async": false,
+    "lineno": 216,
+    "end_lineno": 238,
+    "status": "implemented"
+  },
+  {
+    "file": "nerva/voice/whisper_asr.py",
+    "function": "__init__",
+    "async": false,
+    "lineno": 17,
+    "end_lineno": 19,
+    "status": "implemented"
+  },
+  {
+    "file": "nerva/voice/whisper_asr.py",
+    "function": "transcribe_once",
+    "async": false,
+    "lineno": 24,
+    "end_lineno": 42,
+    "status": "partial"
+  },
+  {
+    "file": "nerva/voice/whisper_asr.py",
+    "function": "transcribe_stream",
+    "async": true,
+    "lineno": 44,
+    "end_lineno": 50,
+    "status": "stub"
+  },
+  {
+    "file": "nerva/workflows.py",
+    "function": "build_screen_dag",
+    "async": false,
+    "lineno": 45,
+    "end_lineno": 89,
+    "status": "implemented"
+  },
+  {
+    "file": "nerva/workflows.py",
+    "function": "node_capture",
+    "async": true,
+    "lineno": 49,
+    "end_lineno": 53,
+    "status": "implemented"
+  },
+  {
+    "file": "nerva/workflows.py",
+    "function": "node_llm_analyze",
+    "async": true,
+    "lineno": 55,
+    "end_lineno": 70,
+    "status": "implemented"
+  },
+  {
+    "file": "nerva/workflows.py",
+    "function": "node_memory_write",
+    "async": true,
+    "lineno": 72,
+    "end_lineno": 83,
+    "status": "implemented"
+  },
+  {
+    "file": "nerva/workflows.py",
+    "function": "build_voice_dag",
+    "async": false,
+    "lineno": 113,
+    "end_lineno": 164,
+    "status": "partial"
+  },
+  {
+    "file": "nerva/workflows.py",
+    "function": "node_input",
+    "async": true,
+    "lineno": 117,
+    "end_lineno": 122,
+    "status": "implemented"
+  },
+  {
+    "file": "nerva/workflows.py",
+    "function": "node_intent_and_answer",
+    "async": true,
+    "lineno": 124,
+    "end_lineno": 145,
+    "status": "partial"
+  },
+  {
+    "file": "nerva/workflows.py",
+    "function": "node_memory_write",
+    "async": true,
+    "lineno": 147,
+    "end_lineno": 158,
+    "status": "implemented"
+  },
+  {
+    "file": "nerva/workflows.py",
+    "function": "build_daily_ops_dag",
+    "async": false,
+    "lineno": 191,
+    "end_lineno": 254,
+    "status": "partial"
+  },
+  {
+    "file": "nerva/workflows.py",
+    "function": "node_collect",
+    "async": true,
+    "lineno": 195,
+    "end_lineno": 212,
+    "status": "partial"
+  },
+  {
+    "file": "nerva/workflows.py",
+    "function": "node_llm",
+    "async": true,
+    "lineno": 214,
+    "end_lineno": 232,
+    "status": "implemented"
+  },
+  {
+    "file": "nerva/workflows.py",
+    "function": "node_memory",
+    "async": true,
+    "lineno": 234,
+    "end_lineno": 248,
+    "status": "implemented"
+  },
+  {
+    "file": "nerva/workflows.py",
+    "function": "build_repo_dag",
+    "async": false,
+    "lineno": 277,
+    "end_lineno": 342,
+    "status": "implemented"
+  },
+  {
+    "file": "nerva/workflows.py",
+    "function": "node_index",
+    "async": true,
+    "lineno": 281,
+    "end_lineno": 301,
+    "status": "implemented"
+  },
+  {
+    "file": "nerva/workflows.py",
+    "function": "node_llm",
+    "async": true,
+    "lineno": 303,
+    "end_lineno": 323,
+    "status": "implemented"
+  },
+  {
+    "file": "nerva/workflows.py",
+    "function": "node_memory",
+    "async": true,
+    "lineno": 325,
+    "end_lineno": 336,
+    "status": "implemented"
+  },
+  {
+    "file": "test_kokoro.py",
+    "function": "main",
+    "async": false,
+    "lineno": 14,
+    "end_lineno": 62,
+    "status": "implemented"
+  },
+  {
+    "file": "verify.py",
+    "function": "check_file",
+    "async": false,
+    "lineno": 11,
+    "end_lineno": 18,
+    "status": "implemented"
+  },
+  {
+    "file": "verify.py",
+    "function": "check_module",
+    "async": false,
+    "lineno": 21,
+    "end_lineno": 29,
+    "status": "implemented"
+  },
+  {
+    "file": "verify.py",
+    "function": "main",
+    "async": false,
+    "lineno": 32,
+    "end_lineno": 122,
+    "status": "implemented"
+  },
+  {
+    "file": "voice_chat.py",
+    "function": "__init__",
+    "async": false,
+    "lineno": 26,
+    "end_lineno": 34,
+    "status": "implemented"
+  },
+  {
+    "file": "voice_chat.py",
+    "function": "chat_loop",
+    "async": true,
+    "lineno": 36,
+    "end_lineno": 79,
+    "status": "implemented"
+  },
+  {
+    "file": "voice_chat.py",
+    "function": "main",
+    "async": true,
+    "lineno": 82,
+    "end_lineno": 91,
+    "status": "implemented"
+  }
+]
