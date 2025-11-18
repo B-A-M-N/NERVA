@@ -2,7 +2,7 @@
 
 **Neural Embodied Reasoning & Vision Assistant**
 
-A local cognitive exoskeleton for AI infrastructure engineers working with LLM orchestration, distributed systems, and complex codebases.
+A distributed AI assistant for infrastructure engineers. Routes LLMs via SOLLOL across Ollama clusters for vision, voice, and browser automation. Zero cloud dependencies.
 
 > **⚠️ PROJECT STATUS: Active Development**
 >
@@ -65,7 +65,7 @@ NERVA is a multi-modal AI assistant that runs entirely on your local machine. It
 Unlike cloud-based assistants, NERVA:
 - Runs on your infrastructure with your models
 - Never sends code or data to external APIs
-- Integrates with SOLLOL for intelligent LLM routing
+- **Requires SOLLOL** for distributed LLM routing across Ollama clusters
 - Uses DAG-based workflows for predictable, composable operations
 
 ---
@@ -130,19 +130,22 @@ nerva/
 ### Prerequisites
 
 1. **Python 3.10+**
-2. **Ollama** (or SOLLOL) running locally with Qwen3-VL model:
+2. **SOLLOL** - Required for distributed LLM routing across Ollama clusters
    ```bash
-   ollama pull qwen3-vl:4-8b
+   pip install sollol
    ```
-3. **SOLLOL** (optional, for advanced LLM routing)
+3. **Ollama instances** with Qwen3-VL model on cluster nodes:
+   ```bash
+   ollama pull qwen3-vl:4b
+   ```
 4. **Whisper** and **Kokoro** models (for voice interface)
 
 ### Install NERVA
 
 ```bash
 # Clone the repository
-git clone https://github.com/yourusername/nerva.git
-cd nerva
+git clone https://github.com/B-A-M-N/NERVA.git
+cd NERVA
 
 # Install with all dependencies
 pip install -e ".[all]"
