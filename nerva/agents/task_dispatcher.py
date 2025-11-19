@@ -22,14 +22,7 @@ from .google_skills import (
     GoogleDriveSkill,
     GmailSkill,
 )
-from nerva.automation.playbooks_common import (
-    build_weather_playbook,
-    build_business_hours_playbook,
-    build_wikipedia_playbook,
-    build_youtube_playbook,
-    build_news_playbook,
-    build_directions_playbook,
-)
+# Playbook imports removed - use proper playbook infrastructure from playbooks_google.py, playbooks_research.py, etc.
 
 try:  # Optional voice deps
     from nerva.voice.whisper_asr import WhisperASR
@@ -139,8 +132,8 @@ class TaskDispatcher:
         if any(word in text for word in ("screen", "browser", "click", "scroll", "tab", "search")):
             return "vision"
         if any(
-            word in text
-            for word in (
+            phrase in text
+            for phrase in (
                 "phone number",
                 "call",
                 "dial",
@@ -154,7 +147,7 @@ class TaskDispatcher:
                 "search for",
             )
         ):
-            return "vision"
+            return "lookup"
 
         # Ask LLM to choose route
         prompt = """You are a router for NERVA. Valid skills:
@@ -231,92 +224,19 @@ Reply with JSON: {"route":"calendar|gmail|drive|vision","reason":"..."}."""
             summary = f"Listed {count} recent Drive items"
         return TaskResult(command, "drive", "ok", summary, payload, ctx.meta)
 
+    async def _handle_lookup(self, command: str, ctx: TaskContext) -> TaskResult:
+        """Handle business lookup / phone-number queries via deterministic playbook."""
+        query = await self._interpret_lookup(command) or command
+        payload = await self.vision_agent.lookup_phone_number(query)
+        answer = payload.get("answer")
+        summary = payload.get("reason", f"Lookup completed for {query}")
+        if isinstance(answer, str) and answer.strip():
+            summary = f"{summary}\n{answer.strip()}"
+        return TaskResult(command, "lookup", payload.get("status", "success"), summary, payload, ctx.meta)
+
     async def _handle_vision(self, command: str, ctx: TaskContext) -> TaskResult:
         """Fallback to the autonomous vision/browser agent."""
         cmd_lower = command.lower()
-
-        # Check for weather queries
-        if any(kw in cmd_lower for kw in ["weather", "temperature", "forecast"]):
-            # Extract location (everything after trigger word)
-            location = "current location"
-            for trigger in ["weather in", "weather for", "temperature in", "forecast for", "weather"]:
-                if trigger in cmd_lower:
-                    location = command[command.lower().find(trigger) + len(trigger):].strip() or "current location"
-                    break
-            playbook = build_weather_playbook(location)
-            result = await self.vision_agent.run_playbook(playbook)
-            answer = await self.vision_agent._answer_task(f"What is the weather in {location}?") if self.vision_agent.answer_task else None
-            summary = answer or f"Weather lookup for {location}"
-            return TaskResult(command, "weather", "ok", summary, {"playbook": result, "answer": answer}, ctx.meta)
-
-        # Check for business hours queries
-        if any(kw in cmd_lower for kw in ["hours", "open", "close", "closed"]):
-            # Extract business name
-            business = command
-            for trigger in ["hours for", "when does", "is", "hours of"]:
-                if trigger in cmd_lower:
-                    business = command[command.lower().find(trigger) + len(trigger):].strip()
-                    # Clean up trailing questions
-                    business = re.sub(r'\s+(open|close|closed).*', '', business)
-                    break
-            playbook = build_business_hours_playbook(business)
-            result = await self.vision_agent.run_playbook(playbook)
-            answer = await self.vision_agent._answer_task(f"What are the hours for {business}?") if self.vision_agent.answer_task else None
-            summary = answer or f"Hours for {business}"
-            return TaskResult(command, "hours", "ok", summary, {"playbook": result, "answer": answer}, ctx.meta)
-
-        # Check for Wikipedia queries
-        if any(kw in cmd_lower for kw in ["wikipedia", "tell me about", "what is", "who is", "who was"]):
-            topic = command
-            for trigger in ["wikipedia", "tell me about", "what is", "who is", "who was"]:
-                if trigger in cmd_lower:
-                    topic = command[command.lower().find(trigger) + len(trigger):].strip()
-                    break
-            playbook = build_wikipedia_playbook(topic)
-            result = await self.vision_agent.run_playbook(playbook)
-            answer = await self.vision_agent._answer_task(f"Tell me about {topic}") if self.vision_agent.answer_task else None
-            summary = answer or f"Wikipedia: {topic}"
-            return TaskResult(command, "wikipedia", "ok", summary, {"playbook": result, "answer": answer}, ctx.meta)
-
-        # Check for YouTube queries
-        if any(kw in cmd_lower for kw in ["youtube", "play", "show me", "video of"]):
-            query = command
-            for trigger in ["youtube", "play", "show me", "video of"]:
-                if trigger in cmd_lower:
-                    query = command[command.lower().find(trigger) + len(trigger):].strip()
-                    break
-            playbook = build_youtube_playbook(query)
-            result = await self.vision_agent.run_playbook(playbook)
-            summary = f"Playing YouTube video: {query}"
-            return TaskResult(command, "youtube", "ok", summary, {"playbook": result}, ctx.meta)
-
-        # Check for news queries
-        if any(kw in cmd_lower for kw in ["news", "latest", "headlines"]):
-            topic = command
-            for trigger in ["news about", "news on", "latest news", "headlines", "news"]:
-                if trigger in cmd_lower:
-                    topic = command[command.lower().find(trigger) + len(trigger):].strip() or "top stories"
-                    break
-            playbook = build_news_playbook(topic)
-            result = await self.vision_agent.run_playbook(playbook)
-            answer = await self.vision_agent._answer_task(f"What are the latest news headlines about {topic}?") if self.vision_agent.answer_task else None
-            summary = answer or f"News: {topic}"
-            return TaskResult(command, "news", "ok", summary, {"playbook": result, "answer": answer}, ctx.meta)
-
-        # Check for directions queries
-        if any(kw in cmd_lower for kw in ["directions", "navigate", "how do i get", "route to"]):
-            # Extract destination (origin defaults to current location)
-            origin = "current location"
-            destination = command
-            for trigger in ["directions to", "navigate to", "how do i get to", "route to"]:
-                if trigger in cmd_lower:
-                    destination = command[command.lower().find(trigger) + len(trigger):].strip()
-                    break
-            playbook = build_directions_playbook(origin, destination)
-            result = await self.vision_agent.run_playbook(playbook)
-            answer = await self.vision_agent._answer_task(f"How do I get to {destination}?") if self.vision_agent.answer_task else None
-            summary = answer or f"Directions to {destination}"
-            return TaskResult(command, "directions", "ok", summary, {"playbook": result, "answer": answer}, ctx.meta)
 
         # Check if this is a lookup/phone number query - use deterministic playbook
         is_lookup = any(kw in cmd_lower for kw in ["phone number", "phone for", "number for", "contact info"])
@@ -390,6 +310,23 @@ Return JSON: {"to":["recipient@example.com"],"subject":"...","body":"..."}"""
             cc=data.get("cc"),
             bcc=data.get("bcc"),
         )
+
+    async def _interpret_lookup(self, command: str) -> Optional[str]:
+        prompt = """Extract the business or place the user wants information about.
+Return JSON: {"query": "..."}"""
+        messages = [
+            {"role": "system", "content": prompt},
+            {"role": "user", "content": command},
+        ]
+        try:
+            response = await self.llm.chat(messages)
+            data = self._extract_structured(response)
+            query = data.get("query")
+            if isinstance(query, str) and query.strip():
+                return query.strip()
+        except Exception:
+            pass
+        return None
 
     @staticmethod
     def _extract_structured(text: str) -> Dict[str, Any]:

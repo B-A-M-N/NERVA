@@ -2,7 +2,7 @@
 
 **Neural Embodied Reasoning & Vision Assistant**
 
-A distributed AI assistant for infrastructure engineers. Routes LLMs via SOLLOL across Ollama clusters for vision, voice, and browser automation. Zero cloud dependencies.
+A local-first AI assistant with vision, voice, and browser automation. Routes LLMs via SOLLOL across your Ollama cluster. Complete privacy - zero cloud dependencies.
 
 > **⚠️ PROJECT STATUS: Active Development**
 >
@@ -24,14 +24,11 @@ A distributed AI assistant for infrastructure engineers. Routes LLMs via SOLLOL 
 - **Task Threads** - Persistent project thread tracking with entry logging
 
 ### 🔧 Implemented, Needs Testing
-- **Automated Playbooks** - 7 deterministic browser workflows:
-  - Weather lookup
-  - Business hours
-  - Wikipedia lookup
-  - YouTube search
-  - News lookup
-  - Directions/maps
-  - Phone number lookup
+- **Automated Playbooks** - Declarative browser workflows for deterministic automation:
+  - **Google Skills**: Calendar (day/week view, events, rescheduling), Gmail (inbox, compose, archive, labels, reply), Drive (search, upload, share)
+  - **Lookup**: Google search with consent dismissal and first result navigation
+  - **Research**: Multi-result SERP extraction with screenshot capture
+  - **Generic Forms**: Login automation and arbitrary form submission
 - **Desktop Automation** - PyAutoGUI wrapper for native app control
 - **Daily Ops Cycles** - Scheduled summary generation from GitHub/TODO/system collectors
 - **GitHub Autopilot** - Branch creation, PR management, troubleshooting
@@ -401,6 +398,9 @@ Need to control native apps or run deterministic multi-step flows? Use:
 
 - `DesktopAutomation` (`nerva/desktop/automation.py`) – optional pyautogui wrapper for moving/clicking/typing outside the browser.
 - `PlaybookRunner` (`nerva/automation/playbooks.py`) – declarative sequences of BrowserAutomation actions with guards (great for logins/approvals).
+- Lookup templates (`nerva/automation/playbooks_lookup.py`) power tasks like “What’s the phone number for Target in Tinley Park?” by auto-running a Google search, opening results, and extracting the answer.
+- Google-specific playbooks (`nerva/automation/playbooks_google.py`) cover Calendar (day/week/reschedule), Gmail (inbox/compose/archive/mark read/label/reply), and Drive (main/search/upload/share), so those skills can navigate reliably before vision analysis.
+- Research and generic form helpers (`nerva/automation/playbooks_research.py`, `nerva/automation/playbooks_generic.py`) script SERP multi-result captures and common login/form submissions.
 
 ```python
 from nerva.automation import Playbook, PlaybookStep
