@@ -228,9 +228,7 @@ class VoiceChat:
         )
 
         response = result.summary or "Task routed."
-        answer = result.payload.get("answer") if isinstance(result.payload, dict) else None
-        if isinstance(answer, str) and answer.strip():
-            response = f"{response}\n{answer.strip()}"
+        # Note: answer is already included in summary by task_dispatcher, no need to append again
 
         print(f"\n🤖 NERVA: {response}")
         self.tts.speak(response)

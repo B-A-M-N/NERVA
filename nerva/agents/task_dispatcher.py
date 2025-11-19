@@ -226,7 +226,21 @@ Reply with JSON: {"route":"calendar|gmail|drive|vision","reason":"..."}."""
 
     async def _handle_lookup(self, command: str, ctx: TaskContext) -> TaskResult:
         """Handle business lookup / phone-number queries via deterministic playbook."""
-        query = await self._interpret_lookup(command) or command
+        query = await self._interpret_lookup(command)
+        if not query:
+            # Fallback: strip common prefixes with regex
+            cmd_lower = command.lower()
+            for pattern in [
+                r"(?:phone number|number|contact info|call)\s+(?:for|to)\s+(.+)",
+                r"(?:find|get|give me|tell me)\s+(?:the\s+)?(?:phone number|number|contact info)\s+(?:for|to|of)\s+(.+)",
+                r"(?:what\'s|what is)\s+(?:the\s+)?(?:phone number|number)\s+(?:for|to|of)\s+(.+)",
+            ]:
+                match = re.search(pattern, cmd_lower, re.IGNORECASE)
+                if match:
+                    query = match.group(1).strip()
+                    break
+        if not query:
+            query = command
         payload = await self.vision_agent.lookup_phone_number(query)
         answer = payload.get("answer")
         summary = payload.get("reason", f"Lookup completed for {query}")
