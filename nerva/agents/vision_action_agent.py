@@ -11,9 +11,10 @@ from nerva.vision.qwen_vision import QwenVision
 from nerva.tools.browser_automation import BrowserAutomation
 from nerva.automation.playbooks import Playbook, PlaybookRunner
 from nerva.automation.playbooks_lookup import build_lookup_playbook
-from nerva.automation.playbooks_lookup import build_lookup_playbook
+from nerva.automation.ui_planner import UIPlanner, UIPlannerError
 
 logger = logging.getLogger(__name__)
+PHONE_REGEX = re.compile(r"(?:\+?1[-.\s]*)?(?:\(\d{3}\)|\d{3})[-.\s]*\d{3}[-.\s]*\d{4}")
 
 
 @dataclass
@@ -70,6 +71,7 @@ class VisionActionAgent:
         self._screenshot_dir.mkdir(exist_ok=True)
         logger.info("[VisionActionAgent] Initialized")
         self._playbook_runner = PlaybookRunner(browser=self.browser)
+        self._planner = UIPlanner(browser=self.browser, executor=self._perform_action)
 
     async def execute_task(
         self,
@@ -159,12 +161,19 @@ class VisionActionAgent:
 
                 # 5. Execute action
                 try:
-                    await self._execute_action(action)
+                    planner_info = await self._planner.run(action)
+                    history[-1]["planner"] = planner_info
+                except UIPlannerError as planner_exc:
+                    logger.error("[VisionActionAgent] Planner failed: %s", planner_exc)
+                    history[-1]["planner"] = planner_exc.summary
+                    history[-1]["error"] = str(planner_exc)
+                    if step >= self.max_steps - 1:
+                        break
+                    continue
                 except Exception as e:
                     logger.error(f"[VisionActionAgent] Action failed: {e}")
                     history[-1]["error"] = str(e)
 
-                    # Continue to next step (agent may recover)
                     if step >= self.max_steps - 1:
                         break
 
@@ -195,21 +204,40 @@ class VisionActionAgent:
         """
         return await self._playbook_runner.run(playbook)
 
+    async def research_topic(self, query: str, result_count: int = 3) -> Dict[str, Any]:
+        from nerva.automation.playbooks_research import build_research_playbook
+
+        playbook = build_research_playbook(query, result_count=result_count)
+        steps = await self.run_playbook(playbook)
+        answer = None
+        if self.answer_task:
+            answer = await self._answer_task("Summarize the key findings from the captured search results.")
+        return {
+            "status": "success",
+            "reason": f"Research run for {query}",
+            "playbook": steps,
+            "answer": answer,
+        }
+
     async def lookup_phone_number(self, query: str) -> Dict[str, Any]:
         """
-        Use a deterministic playbook to search Google and open a result,
-        then run the answer extractor to pull the phone number.
+        Use a deterministic playbook to load Google results and open the first hit,
+        then extract phone numbers directly from the page with a regex.
         """
         playbook = build_lookup_playbook(query)
         results = await self.run_playbook(playbook)
+        phone = await self._extract_phone_number(query)
         answer = None
-        if self.answer_task:
+        if phone:
+            answer = f"The phone number for {query} is {phone}."
+        elif self.answer_task:
             answer = await self._answer_task(f"What is the phone number for {query}?")
         return {
             "status": "success",
             "reason": f"Lookup completed for {query}",
             "playbook": results,
             "answer": answer,
+            "phone": phone,
         }
 
     async def _take_screenshot(self, path: Path) -> None:
@@ -251,6 +279,52 @@ class VisionActionAgent:
             confidence=confidence,
         )
 
+    async def _extract_phone_number(self, query: str) -> Optional[str]:
+        """Inspect the active page body and pull the best matching phone number."""
+        if not self.browser.page:
+            return None
+
+        try:
+            content = await self.browser.page.inner_text("body")
+        except Exception as exc:  # pragma: no cover - playwright runtime failure
+            logger.warning("[VisionActionAgent] Failed to read body text: %s", exc)
+            return None
+
+        matches = list(PHONE_REGEX.finditer(content))
+        if not matches:
+            return None
+
+        lowered = content.lower()
+        query_tokens = [token for token in re.split(r"\W+", query.lower()) if token]
+        best_score = -1
+        best_phone: Optional[str] = None
+
+        for match in matches:
+            raw = match.group(0).strip()
+            digits = re.sub(r"\D", "", raw)
+            score = 1
+            if len(digits) >= 10:
+                score += 1
+            start, end = match.span()
+            snippet = lowered[max(0, start - 80) : min(len(lowered), end + 80)]
+            if any(token in snippet for token in query_tokens):
+                score += 2
+            if score > best_score:
+                best_score = score
+                best_phone = self._format_phone(digits)
+
+        if best_phone:
+            logger.info("[VisionActionAgent] Extracted phone %s for query '%s'", best_phone, query)
+        return best_phone
+
+    def _format_phone(self, digits: str) -> str:
+        """Normalize phone number digits into (XXX) XXX-XXXX when possible."""
+        digits = digits[-10:]
+        if len(digits) != 10:
+            return digits
+        area, prefix, line = digits[:3], digits[3:6], digits[6:]
+        return f"({area}) {prefix}-{line}"
+
     async def _answer_task(self, task: str) -> Optional[str]:
         """Run a final screenshot through the vision QA prompt."""
         if not self.browser.page:
@@ -275,7 +349,7 @@ class VisionActionAgent:
 
         return default
 
-    async def _execute_action(self, action: BrowserAction) -> None:
+    async def _perform_action(self, action: BrowserAction) -> None:
         """
         Execute browser action.
 
