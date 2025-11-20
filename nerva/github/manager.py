@@ -6,7 +6,7 @@ import shutil
 import subprocess
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Any, Dict, List, Optional
+from typing import Any, Callable, Dict, List, Optional
 
 
 def _run_command(
@@ -101,7 +101,7 @@ class GitHubManager:
             "pr",
             "list",
             "--json",
-            "number,title,state,headRefName,updatedAt",
+            "number,title,state,headRefName,isDraft,updatedAt",
             f"--limit={limit}",
         )
         return json.loads(result.stdout or "[]")
@@ -115,6 +115,43 @@ class GitHubManager:
             f"--limit={limit}",
         )
         return json.loads(result.stdout or "[]")
+
+    def list_repositories(
+        self,
+        limit: int = 30,
+        visibility: str = "all",
+        affiliation: str = "owner,collaborator,organization_member",
+    ) -> List[Dict[str, Any]]:
+        """List repositories for the authenticated user via gh API."""
+        params = [f"per_page={limit}"]
+        if visibility and visibility != "all":
+            params.append(f"visibility={visibility}")
+        if affiliation:
+            params.append(f"affiliation={affiliation}")
+
+        query = "user/repos"
+        if params:
+            query += "?" + "&".join(params)
+
+        result = self._gh("api", query)
+        try:
+            data = json.loads(result.stdout or "[]")
+        except json.JSONDecodeError:
+            return []
+
+        repos: List[Dict[str, Any]] = []
+        for repo in data:
+            repos.append(
+                {
+                    "name": repo.get("name"),
+                    "nameWithOwner": repo.get("full_name"),
+                    "description": repo.get("description"),
+                    "updatedAt": repo.get("updated_at"),
+                    "visibility": repo.get("visibility"),
+                    "private": repo.get("private"),
+                }
+            )
+        return repos
 
     def create_branch(self, name: str, base: str = "main") -> None:
         self._git("fetch", "origin", base)
@@ -152,6 +189,7 @@ class TroubleshootingTip:
     title: str
     details: str
     fix: str
+    auto_fix: Optional[Callable[[], subprocess.CompletedProcess]] = None  # Optional auto-fix function
 
 
 class GitTroubleshooter:
@@ -194,11 +232,17 @@ class GitTroubleshooter:
         files = [line.strip() for line in result.stdout.splitlines() if line.strip()]
         if not files:
             return []
+
+        # Auto-fix: stage all untracked files
+        def auto_add():
+            return _run_command(["git", "add", "."], cwd=self.repo_path, check=False)
+
         return [
             TroubleshootingTip(
                 title="Untracked files present",
                 details="Untracked files:\n" + "\n".join(f"- {f}" for f in files[:20]),
                 fix="Add them with 'git add <file>' or ignore via .gitignore.",
+                auto_fix=auto_add,
             )
         ]
 
@@ -207,19 +251,29 @@ class GitTroubleshooter:
         line = result.stdout.splitlines()[0] if result.stdout else ""
         tips: List[TroubleshootingTip] = []
         if "ahead" in line:
+            # Auto-fix: push
+            def auto_push():
+                return _run_command(["git", "push"], cwd=self.repo_path, check=False)
+
             tips.append(
                 TroubleshootingTip(
                     title="Local commits not pushed",
                     details=line.strip(),
                     fix="Run 'git push' to publish changes or stash if needed.",
+                    auto_fix=auto_push,
                 )
             )
         if "behind" in line:
+            # Auto-fix: pull with rebase
+            def auto_pull():
+                return _run_command(["git", "pull", "--rebase"], cwd=self.repo_path, check=False)
+
             tips.append(
                 TroubleshootingTip(
                     title="Remote has new commits",
                     details=line.strip(),
                     fix="Run 'git pull --rebase' to update before pushing.",
+                    auto_fix=auto_pull,
                 )
             )
         return tips

@@ -1,36 +1,94 @@
 from __future__ import annotations
 
+from urllib.parse import quote_plus
+
 from .playbooks import Playbook, PlaybookStep
 
 
-SEARCH_LOOKUP_PLAYBOOK = Playbook(
-    name="lookup_phone",
-    metadata={"description": "Search Google for business info and open first result"},
-    steps=[
-        PlaybookStep(name="goto_google", action="navigate", params={"url": "https://www.google.com"}, wait_for="textarea[name='q']"),
-        PlaybookStep(name="focus_search", action="click", params={"selector": "textarea[name='q']"}),
-        PlaybookStep(name="wait_results", action="wait_for_selector", params={"selector": "#search", "timeout": 15000}),
-        PlaybookStep(name="open_first_result", action="click", params={"selector": "#search a"}, wait_for="body"),
-    ],
-)
+CONSENT_SCRIPT = """
+(() => {
+    const clickMatches = (root) => {
+        if (!root) return false;
+        const ids = ['L2AGLb', 'introAgreeButton'];
+        for (const id of ids) {
+            const byId = root.getElementById ? root.getElementById(id) : null;
+            if (byId) {
+                byId.click();
+                return true;
+            }
+            const query = root.querySelector ? root.querySelector(`#${id}`) : null;
+            if (query) {
+                query.click();
+                return true;
+            }
+        }
+        const ariaLabels = ['accept all', 'accept', 'agree'];
+        const buttons = root.querySelectorAll ? Array.from(root.querySelectorAll('button')) : [];
+        for (const btn of buttons) {
+            const label = (btn.getAttribute('aria-label') || '').toLowerCase();
+            if (ariaLabels.some(text => label.includes(text))) {
+                btn.click();
+                return true;
+            }
+            const text = (btn.textContent || '').trim().toLowerCase();
+            if (text && ariaLabels.some(keyword => text.includes(keyword))) {
+                btn.click();
+                return true;
+            }
+        }
+        return false;
+    };
 
+    if (clickMatches(document)) {
+        return true;
+    }
+
+    const frame = document.querySelector('iframe[src*=\"consent\"]');
+    if (frame && frame.contentWindow) {
+        try {
+            return clickMatches(frame.contentDocument || frame.contentWindow.document);
+        } catch (err) {
+            return false;
+        }
+    }
+
+    return false;
+})()
+""".strip()
 
 def build_lookup_playbook(query: str) -> Playbook:
-    steps = list(SEARCH_LOOKUP_PLAYBOOK.steps)
-    steps.insert(
-        2,
+    encoded = quote_plus(query)
+    search_url = f"https://www.google.com/search?q={encoded}&hl=en&gl=us"
+
+    steps = [
         PlaybookStep(
-            name="type_query",
-            action="fill",
-            params={"selector": "textarea[name='q']", "text": query},
+            name="goto_results",
+            action="navigate",
+            params={"url": search_url},
+            wait_for="body",
+            wait_timeout=60000,
         ),
-    )
-    steps.insert(
-        3,
         PlaybookStep(
-            name="submit_query",
+            name="dismiss_consent",
             action="evaluate",
-            params={"script": "document.querySelector('textarea[name=\"q\"]').form.submit();"},
+            params={"script": CONSENT_SCRIPT},
         ),
+        PlaybookStep(
+            name="wait_results",
+            action="wait_for_selector",
+            params={"selector": "#search", "timeout": 60000},
+        ),
+        PlaybookStep(
+            name="open_first_result",
+            action="click",
+            params={"selector": "#search a"},
+            wait_for="body",
+            wait_timeout=60000,
+        ),
+    ]
+
+    return Playbook(
+        name=f"lookup:{query}",
+        metadata={"description": "Open Google results for a query and drill into first link"},
+        steps=steps,
     )
-    return Playbook(name=f"lookup:{query}", steps=steps)

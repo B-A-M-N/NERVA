@@ -261,6 +261,14 @@ class BrowserAutomation:
 
         return await self.page.evaluate(script)
 
+    async def upload(self, selector: str, file_path: str) -> bool:
+        """Upload a file using an <input type="file"> selector."""
+        if not self.page:
+            raise RuntimeError("Browser not started. Call start() first.")
+
+        await self.page.set_input_files(selector, file_path)
+        return True
+
     async def wait_for_selector(
         self,
         selector: str,

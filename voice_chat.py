@@ -12,8 +12,10 @@ Usage:
   Then just say "Hey Mycroft" (or NERVA when custom model is trained)
 """
 import asyncio
+import os
 from pathlib import Path
 from typing import Optional
+from urllib.parse import urlparse, urlunparse
 
 from nerva.llm.factory import create_llm_client
 from nerva.config import NervaConfig
@@ -28,9 +30,12 @@ from nerva.agents import (
 )
 from nerva.task_tracking import ThreadStore
 from nerva.knowledge import KnowledgeGraph
+from nerva.github import GitHubManager
+from nerva.filesystem import RepoManager
 from nerva.voice.whisper_asr import WhisperASR
 from nerva.voice.kokoro_tts import KokoroTTS
 from nerva.voice.wake_word import WakeWordDetector
+from nerva.sollol_integration import NERVADashboardIntegration
 
 
 class VoiceChat:
@@ -56,6 +61,10 @@ class VoiceChat:
         self.barge_in = barge_in
         self.use_wake_word = use_wake_word and not barge_in
         self.profile_path = Path(profile_path).expanduser() if profile_path else None
+        self.sollol_dashboard_url = os.getenv("SOLLOL_DASHBOARD_URL") or self._derive_dashboard_url(
+            self.config.sollol_base_url
+        )
+        self.sollol_integration = None
 
         # Initialize wake word detector if enabled
         self.wake_detector = None
@@ -83,10 +92,42 @@ class VoiceChat:
                 print(f"⚠️  Google skill init failed ({exc}) - continuing without logged-in profile")
         self.thread_store = ThreadStore()
         self.knowledge_graph = KnowledgeGraph()
+        repo_roots = [Path.cwd()]
+        home_path = Path.home()
+        if home_path not in repo_roots:
+            repo_roots.append(home_path)
+        self.repo_manager = RepoManager(search_roots=repo_roots)
 
-        async def _skip_clarifier(question: str) -> Optional[str]:
-            print(f"[Clarify] {question} (skipped in voice mode)")
-            return None
+        # SOLLOL dashboard/gateway integration
+        try:
+            self.sollol_integration = NERVADashboardIntegration(
+                dashboard_port=8080,
+                gateway_port=urlparse(self.config.sollol_base_url).port or 8000,
+                auto_launch_dashboard=True,
+                auto_launch_gateway=True,
+                auto_register=True,
+            )
+        except Exception as exc:
+            print(f"⚠️  Failed to initialize SOLLOL dashboard integration: {exc}")
+
+        async def _voice_clarifier(question: str) -> Optional[str]:
+            """Ask clarification question and wait for voice response."""
+            print(f"\n❓ {question}")
+            self.tts.speak(question)
+
+            print("\n🎙️ Speak your answer (recording stops after silence)...")
+            text = self.asr.transcribe_until_silence(
+                min_duration=self.min_recording,
+                silence_duration=self.silence_timeout,
+                max_duration=self.max_recording,
+            )
+
+            if text:
+                print(f"👤 You: {text}")
+                return text
+            else:
+                print("⚠️ No response detected, skipping clarification")
+                return None
 
         self.dispatcher = TaskDispatcher(
             llm=self.llm,
@@ -95,16 +136,29 @@ class VoiceChat:
             calendar_skill=calendar,
             gmail_skill=gmail,
             drive_skill=drive,
-            clarifier=_skip_clarifier,
+            github_manager=GitHubManager(),
+            repo_manager=self.repo_manager,
+            clarifier=_voice_clarifier,
             thread_store=self.thread_store,
             knowledge_graph=self.knowledge_graph,
         )
+
+    def _derive_dashboard_url(self, gateway_url: str) -> str:
+        try:
+            parsed = urlparse(gateway_url or "")
+            scheme = parsed.scheme or "http"
+            host = parsed.hostname or "localhost"
+            netloc = f"{host}:8080"
+            return urlunparse((scheme, netloc, "", "", "", ""))
+        except Exception:
+            return "http://localhost:8080"
 
     async def chat_loop(self):
         """Voice chat loop with wake word detection."""
         print("\n" + "="*60)
         print("NERVA Voice Chat")
         print("="*60)
+        print(f"📊 SOLLOL Dashboard: {self.sollol_dashboard_url}")
 
         if self.barge_in:
             print("\n📋 Instructions:")
@@ -114,6 +168,7 @@ class VoiceChat:
                 f"{self.silence_timeout}s after silence (max {self.max_recording}s)"
             )
             print("   3. Say 'exit' or 'goodbye' to quit")
+            print(f"   4. SOLLOL dashboard: {self.sollol_dashboard_url}")
             print("\n⚙️  Mode: Continuous barge-in (always listening)\n")
             await self._barge_in_loop()
             return
@@ -127,6 +182,7 @@ class VoiceChat:
                 f"(max {self.max_recording}s total)"
             )
             print(f"   4. Say 'exit' or 'goodbye' to quit")
+            print(f"   5. SOLLOL dashboard: {self.sollol_dashboard_url}")
             print(f"\n⚙️  Mode: Wake Word Detection (low CPU)")
             print(f"   Wake Word: 'Alexa' (custom NERVA model coming soon)")
         else:
@@ -137,6 +193,7 @@ class VoiceChat:
                 f"(max {self.max_recording}s total)"
             )
             print(f"   3. Say 'exit' or 'goodbye' to quit")
+            print(f"   4. SOLLOL dashboard: {self.sollol_dashboard_url}")
             print(f"\n⚙️  Mode: Continuous Recording (fallback mode)")
 
         print("🎤 Press Ctrl+C to stop anytime\n")
@@ -205,6 +262,11 @@ class VoiceChat:
                 if not text or len(text.strip()) < 3:
                     continue
 
+                # Filter out common Whisper hallucinations
+                if self._is_hallucination(text):
+                    print(f"⚠️ Filtered hallucination: '{text}'")
+                    continue
+
                 print(f"\n👤 You: {text}")
                 if not await self._handle_transcription(text):
                     break
@@ -233,6 +295,30 @@ class VoiceChat:
         print(f"\n🤖 NERVA: {response}")
         self.tts.speak(response)
         return True
+
+    def _is_hallucination(self, text: str) -> bool:
+        """Filter common Whisper hallucinations when transcribing silence/noise."""
+        lowered = text.lower().strip()
+
+        # Common Whisper hallucinations
+        hallucinations = [
+            "thank you for watching",
+            "thanks for watching",
+            "thank you",
+            "thanks",
+            "...",
+            ".",
+            "you",
+            "subscribe",
+            "like and subscribe",
+        ]
+
+        # Check exact matches and partial matches
+        for halluc in hallucinations:
+            if lowered == halluc or lowered.startswith(halluc + ".") or lowered.startswith(halluc + "!"):
+                return True
+
+        return False
 
 
 async def main():

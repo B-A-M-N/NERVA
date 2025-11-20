@@ -15,6 +15,7 @@ class PlaybookStep:
     action: str
     params: Dict[str, Any] = field(default_factory=dict)
     wait_for: Optional[str] = None  # selector to confirm before continuing
+    wait_timeout: Optional[int] = None
     description: Optional[str] = None
 
 
@@ -42,7 +43,9 @@ class PlaybookRunner:
             outcome = {"step": step.name, "action": step.action, "status": "pending"}
             try:
                 if step.wait_for:
-                    await self.browser.wait_for_selector(step.wait_for, timeout=15000)
+                    await self.browser.wait_for_selector(
+                        step.wait_for, timeout=step.wait_timeout or 45000
+                    )
                 method = getattr(self.browser, step.action)
                 result = await method(**step.params)
                 outcome["result"] = result

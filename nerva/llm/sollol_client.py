@@ -52,6 +52,8 @@ class SolLolLLMClient(BaseLLMClient):
         priority = kwargs.get("priority") or self._default_priority
 
         logger.debug("[SOLLOL] Routing chat request (model=%s, priority=%s)", model, priority)
+        logger.info("[SOLLOL] → User message: %s", latest_user[:100] + "..." if len(latest_user) > 100 else latest_user)
+
         try:
             response = await self._client.chat_async(
                 message=latest_user,
@@ -60,6 +62,7 @@ class SolLolLLMClient(BaseLLMClient):
                 system_prompt=system_prompt,
                 conversation_history=history or None,
             )
+            logger.info("[SOLLOL] ← Response received (length: %d chars)", len(str(response)))
         except (httpx.HTTPError, Exception) as exc:
             logger.warning("[SOLLOL] Chat failed (%s) - falling back to local client", exc)
             if self._text_fallback:

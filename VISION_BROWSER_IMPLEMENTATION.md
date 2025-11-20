@@ -110,16 +110,18 @@ test_vision_quick.py            # Quick vision model test
    - Forces QwenVision to use **qwen3-vl:4b** for consistent reasoning speed/accuracy
 
 2. **Google Calendar**
-   - `summarize_day(day="today", limit=6)` → opens Google Calendar Day view, uses Qwen-VL to output JSON agenda
-   - `create_event(CalendarEvent)` → fills the event editor (title/date/time/location/description) and saves
+   - `summarize_day(day="today", limit=6)` → runs a PlaybookRunner navigation to the calendar day view, then uses Qwen-VL to output a JSON agenda
+   - `create_event(CalendarEvent)` → deterministic playbook opens the event editor before filling (title/date/time/location/description) and saving
 
 3. **Gmail**
-   - `summarize_inbox(unread_only=True, limit=5)` → captures inbox + extracts sender/subject/snippet/time in JSON
-   - `send_email(EmailDraft)` → clicks Compose, fills recipients, subject, body, then sends (optional CC/BCC)
+   - `summarize_inbox(unread_only=True, limit=5)` → Gmail inbox playbook ensures the view is loaded, then a Qwen-VL prompt returns sender/subject/snippet/time JSON
+   - `send_email(EmailDraft)` → compose playbook opens the dialog before filling recipients/subject/body and clicking Send (optional CC/BCC)
+   - `archive_first()`, `mark_first_read()`, `open_label(label)`, `reply_first(body)` leverage new triage playbooks to automate inbox management
 
 4. **Google Drive**
-   - `list_recent_files(limit=8)` → screenshots My Drive and returns vision-derived file metadata
-   - `search(query)` → performs Drive search, waits for results, and summarizes top hits via vision
+   - `list_recent_files(limit=8)` → Drive playbook loads My Drive reliably, then we capture a screenshot and summarize
+   - `search(query)` → Drive search playbook fills the query, submits, waits for results, and the vision prompt summarizes top hits
+   - `upload_file(path)` and `share_first_item()` call upload/share playbooks to automate common operations
 
 ### Manual Harness (`test_google_skills.py`)
 
@@ -190,6 +192,19 @@ asyncio.run(voice.run())
 
 - VisionActionAgent now returns an `"answer"` field by running the final screenshot through a Qwen-VL question-answer prompt, so tasks like “Find the phone number for Target in Tinley Park” capture the result instead of just clicking links.
 - The dispatcher asks clarifying questions (via LLM + user prompt) when a request is ambiguous before it routes to a skill.
+- Added deterministic playbooks for common lookups (e.g., Google search → open result → extract phone number) so “What’s the phone number for Target in Tinley Park?” now drills into the result instead of stopping at the search page.
+
+### UI Planner & Playbook Upgrades
+
+- `nerva/automation/ui_planner.py` introduces an intermediate planning layer between Qwen-VL’s ACTION suggestion and the raw Playwright calls. Each action now generates a plan that (a) verifies the target selector before executing, (b) predicts the next expected UI state (SERP results, Gmail inbox, etc.), and (c) retries with structured recovery (scroll, wait, reload) before surfacing an error. `VisionActionAgent` logs this planner trace per step so we know why a browser action failed.
+- Lookup playbooks now auto-dismiss Google’s consent banner, wait up to 60 s for the search box/results, and then submit the query. This prevents first-run prompts from blocking the automation loop.
+- Research, Gmail triage, Drive upload/share, and generic login/form playbooks all run through the same planner+runner stack, so dispatcher routes share recovery hooks rather than relying purely on vision heuristics.
+
+### Operational Notes / Testing Gaps
+
+- The `lookup_phone` playbook clears Google’s HTML consent, but Chrome’s first-run `xdg-open` system dialog cannot be automated; close it once manually if it pops up.
+- Voice → dispatcher routing plus the new planner have only been verified through manual runs (voice_chat.py / test_google_skills.py). There is no automated regression test for barge-in, wake-word fallbacks, or the UI planner guard/recovery traces yet.
+- Planner heuristics cover Google Search/Gmail/Calendar/Drive, but other products still fall back to the generic `"body"` postcondition. When a new workflow repeatedly stalls, add a selector mapping in `UIPlanner._RESULT_PATTERNS`.
 
 ---
 

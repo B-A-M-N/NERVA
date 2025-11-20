@@ -288,7 +288,7 @@ class WhisperASR:
             recorded = 0.0
             silence_time = 0.0
             noise_floor = None
-            padding = 50  # dynamic boost over noise floor
+            padding = 250  # dynamic boost over noise floor (increased for noisy environments)
             voice_detected = not wait_for_voice
             voice_time = 0.0
             pre_buffer: List[bytes] = []
@@ -339,14 +339,18 @@ class WhisperASR:
                         silence_time += chunk_duration
                         # Show progress on silence detection
                         if silence_time >= 0.5 and int(silence_time * 10) % 5 == 0:
-                            print(f"   Silence: {silence_time:.1f}s / {silence_duration:.1f}s", end='\r')
+                            print(f"   Silence: {silence_time:.1f}s / {silence_duration:.1f}s (RMS={rms} threshold={int(dynamic_threshold)})", end='\r')
                     else:
                         if silence_time > 0:
-                            print(" " * 50, end='\r')  # Clear silence indicator
+                            print(" " * 80, end='\r')  # Clear silence indicator
                         silence_time = 0.0
+                        # Show voice activity
+                        if int(recorded * 4) % 2 == 0:  # Update every 0.5s
+                            print(f"   🔴 Recording... {recorded:.1f}s (RMS={rms} threshold={int(dynamic_threshold)})", end='\r')
 
                     if recorded >= min_duration and silence_time >= silence_duration:
-                        print(" " * 50, end='\r')  # Clear before break
+                        print(" " * 80, end='\r')  # Clear before break
+                        print(f"✅ Recording stopped after {silence_time:.1f}s silence")
                         break
 
             process.terminate()

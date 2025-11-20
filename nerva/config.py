@@ -34,7 +34,7 @@ class NervaConfig:
     # SOLLOL routing (load balancing and orchestration)
     use_sollol: bool = field(default_factory=lambda: _env_flag("NERVA_USE_SOLLOL", True))
     sollol_base_url: str = field(default_factory=lambda: os.getenv("SOLLOL_BASE_URL", "http://localhost:8000"))
-    sollol_model: str = field(default_factory=lambda: os.getenv("SOLLOL_MODEL", "llama3.2"))
+    sollol_model: str = field(default_factory=lambda: os.getenv("SOLLOL_MODEL", "vibethinker:q4"))
     sollol_priority: int = field(default_factory=lambda: _env_int("SOLLOL_PRIORITY", 5))
 
     # Vision model settings (routed through SOLLOL - it will auto-route to nodes with the model)
